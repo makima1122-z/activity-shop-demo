@@ -215,12 +215,18 @@
         <div class="success-content">
           <h2 id="successTitle">获得物品</h2>
           <div class="success-rule"></div>
-          <div class="reward-card">
+          <button id="rewardButton" class="reward-card" type="button" aria-label="查看物品说明" aria-expanded="false" aria-controls="itemTip">
             <img src="./assets/potion.png" alt="高级体能药水">
             <strong id="rewardQuantity">1</strong>
-          </div>
+          </button>
           <h3 id="rewardName">高级体能药水</h3>
           <p>点击空白处关闭</p>
+        </div>
+        <div id="itemTip" class="unlock-tip item-tip" hidden role="dialog" aria-labelledby="itemTipTitle">
+          <div class="tip-arrow"></div>
+          <h3><span id="itemTipTitle"></span><small id="itemTipOwned">持有：0</small></h3>
+          <p id="itemTipDescription"></p>
+          <p><strong>[获取途径]</strong>活动商店购买、活动任务奖励</p>
         </div>
       </div>
 

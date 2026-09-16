@@ -438,6 +438,14 @@ button:focus-visible, input:focus-visible { outline: 6px solid #58a6ff; outline-
 .success-rule { height: 3px; margin: 25px auto 80px; background: linear-gradient(90deg, transparent, #fff 24%, #fff 76%, transparent); }
 .reward-card { width: 330px; height: 330px; margin: 0 auto; background: #9140b2; position: relative; display: flex; align-items: center; justify-content: center; }
 .reward-card img { width: 210px; }
+.reward-card { padding: 0; color: white; }
+.unlock-tip.item-tip { width: 600px; min-height: 0; left: calc(50% + 205px); top: calc(50% - 150px); }
+.item-tip p { white-space: normal; line-height: 1.65; }
+.item-tip p + p { padding-top: 0; }
+.item-tip h3 { justify-content: space-between; gap: 16px; }
+.item-tip h3 > span, .item-tip h3 > small { line-height: 1; }
+#itemTipOwned { transform: translateY(6px); }
+#itemTipOwned { font-size: 24px; font-weight: 400; white-space: nowrap; color: #d0d0d0; }
 .reward-card strong { position: absolute; right: 24px; bottom: 14px; font-size: 45px; }
 .success-content h3 { margin: 18px 0 170px; font-size: 38px; font-weight: 500; }
 .success-content p { margin: 0; color: #adb2bb; font-size: 30px; }

@@ -55,6 +55,15 @@ const productSets = {
 };
 
 let balance = 800000;
+// 仓库按物品名称、品质及图标区分，同款商品共享持有数量；本次演示从 0 开始。
+const inventory = new Map();
+function inventoryKey(product) {
+  return JSON.stringify([product.name, product.quality, product.image || "./assets/potion.png"]);
+}
+function addToInventory(product, amount) {
+  const key = inventoryKey(product);
+  inventory.set(key, (inventory.get(key) || 0) + amount);
+}
 let selectedCategory = "limited";
 const limitedCountdown = document.getElementById("limitedCountdown");
 // 演示活动从页面打开起持续 6 天 18 小时 59 分，可替换为真实活动结束时间。
@@ -97,6 +106,13 @@ const unlockTip = document.querySelector("#unlockTip");
 const missionName = document.querySelector("#missionName");
 const modalLayer = document.querySelector("#modalLayer");
 const successLayer = document.querySelector("#successLayer");
+const itemTip = document.querySelector("#itemTip");
+const rewardButton = document.querySelector("#rewardButton");
+
+function closeItemTip() {
+  itemTip.hidden = true;
+  rewardButton.setAttribute("aria-expanded", "false");
+}
 const exitLayer = document.querySelector("#exitLayer");
 const toast = document.querySelector("#toast");
 
@@ -275,6 +291,7 @@ function purchase() {
     return;
   }
   balance -= total;
+  addToInventory(selectedProduct, quantity);
   if (!selectedProduct.unlimited) selectedProduct.stock -= quantity;
   balanceText.textContent = formatNumber(balance);
   document.querySelector("#rewardQuantity").textContent = quantity;
@@ -282,6 +299,8 @@ function purchase() {
   document.querySelector(".reward-card").style.backgroundColor = selectedProduct.rarity;
   document.querySelector(".reward-card img").alt = selectedProduct.name;
   document.querySelector(".reward-card img").src = selectedProduct.image || "./assets/potion.png";
+  closeItemTip();
+  rewardButton.setAttribute("aria-label", `查看${selectedProduct.name}的物品说明`);
   renderProducts();
   modalLayer.hidden = true;
   successLayer.hidden = false;
@@ -339,6 +358,25 @@ document.addEventListener("pointerdown", event => {
   if (!toast.hidden && !event.target.closest("#toast")) toast.hidden = true;
 });
 successLayer.addEventListener("click", event => {
+  if (event.target.closest("#rewardButton")) {
+    if (!selectedProduct) return;
+    const opening = itemTip.hidden;
+    document.querySelector("#itemTipTitle").textContent = selectedProduct.name;
+    document.querySelector("#itemTipOwned").textContent = `持有：${formatNumber(inventory.get(inventoryKey(selectedProduct)) || 0)}`;
+    document.querySelector("#itemTipDescription").textContent = selectedProduct.image === "./assets/potion3.png"
+      ? "战备补给物资，可用于补充基础资源与物资储备。"
+      : selectedProduct.image === "./assets/potion2.png"
+        ? "角色培养素材，可用于提升角色等级、培养技能或突破成长上限。"
+        : "体能补给药水，可用于恢复体能，为挑战活动关卡提供支持。";
+    itemTip.hidden = !opening;
+    rewardButton.setAttribute("aria-expanded", String(opening));
+    return;
+  }
+  if (event.target.closest("#itemTip")) return;
+  if (!itemTip.hidden) {
+    closeItemTip();
+    return;
+  }
   if (event.target === successLayer || event.target.closest(".success-content")) {
     successLayer.hidden = true;
     selectedProduct = null;
@@ -349,6 +387,11 @@ document.querySelector("#exitButton").addEventListener("click", () => { exitLaye
 document.querySelector("#reopenButton").addEventListener("click", () => { exitLayer.hidden = true; });
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") {
+    if (!itemTip.hidden) {
+      closeItemTip();
+      rewardButton.focus();
+      return;
+    }
     if (!coinTip.hidden) {
       closeCoinTip();
       walletButton.focus();
@@ -458,11 +501,12 @@ function registerWebMcpTools() {
       const product = Object.values(productSets).flat().find(item => item.id === input.productId);
       if (!product) throw new Error("商品不存在");
       if (product.locked) throw new Error("商品尚未解锁");
-      if (product.stock < input.quantity) throw new Error("商品库存不足");
+      if (!product.unlimited && product.stock < input.quantity) throw new Error("商品库存不足");
       const total = product.price * input.quantity;
       if (total > balance) throw new Error("活动货币不足");
       balance -= total;
-      product.stock -= input.quantity;
+      addToInventory(product, input.quantity);
+      if (!product.unlimited) product.stock -= input.quantity;
       balanceText.textContent = formatNumber(balance);
       renderProducts();
       return { productId: product.id, quantity: input.quantity, total, balance, remainingStock: product.stock };
