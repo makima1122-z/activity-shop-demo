@@ -358,7 +358,15 @@ button:focus-visible, input:focus-visible { outline: 6px solid #58a6ff; outline-
 .quantity-controls button { height: 80px; background: #3f3f3f; color: white; font-size: 52px; }
 #maxButton { display: flex; align-items: center; justify-content: center; }
 #maxButton img { width: 48px; height: 48px; object-fit: contain; }
-#maxButton:disabled img { opacity: .4; }
+#maxButton:disabled img { display: none; }
+#maxButton:disabled::after {
+  content: "";
+  width: 48px;
+  height: 48px;
+  background-color: #9aa0a8;
+  mask: url('./assets/up-icon.png') center / contain no-repeat;
+  -webkit-mask: url('./assets/up-icon.png') center / contain no-repeat;
+}
 .quantity-controls button:disabled { background: #e2e2e2; color: #9aa0a8; cursor: default; }
 .quantity-controls span { font-size: 33px; font-weight: 800; text-align: center; }
 .quantity-controls input {
